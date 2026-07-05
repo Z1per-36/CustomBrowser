@@ -16,6 +16,7 @@ function App() {
   const [pendingPermissions, setPendingPermissions] = useState({}); // tabId -> array of requests
   const [activeSettingsTab, setActiveSettingsTab] = useState('general');
   const [notification, setNotification] = useState('');
+  const [confirmClearHistory, setConfirmClearHistory] = useState(false);
 
   const activeTab = tabs.find(t => t.id === activeTabId);
   const isSettingsTab = activeTab && activeTab.url === 'internal://settings';
@@ -525,12 +526,19 @@ function App() {
               <div className="history-list">
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                    <h3>歷史紀錄</h3>
-                   <button onClick={() => {
-                     if (window.confirm('確定要清除所有歷史紀錄嗎？')) {
-                       window.electronAPI.clearHistory();
-                       setHistoryData([]);
-                     }
-                   }} className="btn-secondary" style={{ background: '#e81123' }}><Trash size={14} style={{ marginRight: 4, verticalAlign: 'middle' }}/> 清除所有紀錄</button>
+                   {confirmClearHistory ? (
+                     <div style={{ display: 'flex', gap: '10px' }}>
+                       <span style={{ color: '#ff6b6b', fontSize: '12px', alignSelf: 'center' }}>確定清除？</span>
+                       <button onClick={() => {
+                         window.electronAPI.clearHistory();
+                         setHistoryData([]);
+                         setConfirmClearHistory(false);
+                       }} className="btn-secondary" style={{ background: '#e81123', padding: '4px 8px', fontSize: '12px' }}>是</button>
+                       <button onClick={() => setConfirmClearHistory(false)} className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}>否</button>
+                     </div>
+                   ) : (
+                     <button onClick={() => setConfirmClearHistory(true)} className="btn-secondary" style={{ background: 'transparent', color: '#ff6b6b', border: '1px solid #ff6b6b', padding: '4px 8px', fontSize: '12px' }}><Trash size={12} style={{ marginRight: 4, verticalAlign: 'middle' }}/> 清除所有紀錄</button>
+                   )}
                 </div>
                 {historyData.length === 0 ? <p>無歷史紀錄。</p> : null}
                 {historyData.map((h, i) => (
