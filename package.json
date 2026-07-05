@@ -36,6 +36,7 @@
     "files": [
       "dist/**/*",
       "main.js",
+      "preload.js",
       "browserview-preload.js",
       "package.json"
     ],
