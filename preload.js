@@ -1,0 +1,48 @@
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  minimizeWindow: () => ipcRenderer.send('window-minimize'),
+  toggleMaximize: () => ipcRenderer.send('window-maximize'),
+  closeWindow: () => ipcRenderer.send('window-close'),
+  
+  createTab: (data) => ipcRenderer.send('create-tab', data),
+  switchTab: (id) => ipcRenderer.send('switch-tab', id),
+  closeTab: (id) => ipcRenderer.send('close-tab', id),
+  navigate: (data) => ipcRenderer.send('navigate', data),
+  goBack: (id) => ipcRenderer.send('go-back', id),
+  goForward: (id) => ipcRenderer.send('go-forward', id),
+  reload: (id) => ipcRenderer.send('reload', id),
+  
+  getShortcuts: () => ipcRenderer.invoke('get-shortcuts'),
+  saveShortcuts: (shortcuts) => ipcRenderer.send('save-shortcuts', shortcuts),
+  getAppSettings: () => ipcRenderer.invoke('get-app-settings'),
+  saveAppSettings: (settings) => ipcRenderer.send('save-app-settings', settings),
+  getAllHighlights: () => ipcRenderer.invoke('get-all-highlights'),
+  deleteHighlight: (data) => ipcRenderer.send('delete-highlight', data),
+  loadExtension: () => ipcRenderer.invoke('load-extension'),
+  downloadCrx: (url) => ipcRenderer.invoke('download-crx', url),
+  getExtensions: () => ipcRenderer.invoke('get-extensions'),
+  openExtensionPopup: (data) => ipcRenderer.send('open-extension-popup', data),
+  getHistory: () => ipcRenderer.invoke('get-history'),
+  clearHistory: () => ipcRenderer.send('clear-history'),
+  getPasswords: () => ipcRenderer.invoke('get-passwords'),
+  importPasswordsCsv: () => ipcRenderer.invoke('import-passwords-csv'),
+  deletePassword: (index) => ipcRenderer.send('delete-password', index),
+  getPermissions: () => ipcRenderer.invoke('get-permissions'),
+  selectBookmarkFolder: (folders) => ipcRenderer.invoke('select-bookmark-folder', folders),
+  showFolderMenu: (folder) => ipcRenderer.invoke('show-folder-menu', folder),
+  deletePermission: (origin) => ipcRenderer.send('delete-permission', origin),
+  permissionResponse: (data) => ipcRenderer.send('permission-response', data),
+  showExtensionsMenu: () => ipcRenderer.send('show-extensions-menu'),
+  showPermissionsMenu: (reqs) => ipcRenderer.send('show-permissions-menu', reqs),
+  hideActiveView: () => ipcRenderer.send('hide-active-view'),
+  showActiveView: () => ipcRenderer.send('show-active-view'),
+  
+  onTabUpdated: (callback) => ipcRenderer.on('tab-updated', (event, data) => callback(data)),
+  onTabFaviconUpdated: (callback) => ipcRenderer.on('tab-favicon-updated', (event, data) => callback(data)),
+  onPermissionRequested: (callback) => ipcRenderer.on('permission-requested', (event, data) => callback(data)),
+  onRemovePendingPermission: (callback) => ipcRenderer.on('remove-pending-permission', (event, reqId) => callback(reqId)),
+  onGitActionResult: (callback) => ipcRenderer.on('git-action-result', (event, data) => callback(data)),
+  onSettingsUpdated: (callback) => ipcRenderer.on('settings-updated', (event, data) => callback(data)),
+  onOpenNewTab: (callback) => ipcRenderer.on('open-new-tab', (event, url) => callback(url))
+});
