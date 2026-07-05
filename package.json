@@ -1,14 +1,14 @@
 {
   "name": "custombrowser",
   "version": "1.0.0",
-  "description": "",
+  "description": "Custom Browser Built with Electron",
   "main": "main.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"electron .\"",
     "build": "vite build && electron-builder"
   },
   "keywords": [],
-  "author": "",
+  "author": "Z1per-36 <z1per@example.com>",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
