@@ -8,6 +8,8 @@ on:
 jobs:
   release:
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     
     strategy:
       matrix:
@@ -27,8 +29,6 @@ jobs:
 
       - name: Build and Package Electron App
         run: npm run build
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Artifacts to Release
         uses: softprops/action-gh-release@v2
