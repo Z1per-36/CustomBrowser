@@ -970,8 +970,12 @@ ipcMain.handle('get-all-highlights', () => highlightsData);
 ipcMain.on('save-app-settings', (e, newSettings) => {
   saveAppSettings(newSettings);
   if (global.blocker) {
-    if (newSettings.adblockerEnabled) global.blocker.enableBlockingInSession(session.defaultSession);
-    else global.blocker.disableBlockingInSession(session.defaultSession);
+    try {
+      if (newSettings.adblockerEnabled) global.blocker.enableBlockingInSession(session.defaultSession);
+      else global.blocker.disableBlockingInSession(session.defaultSession);
+    } catch (e) {
+      console.error('Adblocker toggle error:', e.message);
+    }
   }
   mainWindow.webContents.send('settings-updated', appSettings);
 });
