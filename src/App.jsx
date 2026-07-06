@@ -22,8 +22,7 @@ function App() {
   const isSettingsTab = activeTab && activeTab.url === 'internal://settings';
 
   useEffect(() => {
-    // Initial tab
-    handleNewTab('https://www.google.com');
+    // Initial tab logic moved to getAppSettings
 
     // Listen for tab updates (title, url)
     if (window.electronAPI) {
@@ -59,7 +58,16 @@ function App() {
         handleNewTab(url);
       });
       // Initial load
-      window.electronAPI.getAppSettings().then(setAppSettings);
+      window.electronAPI.getAppSettings().then(settings => {
+        setAppSettings(settings);
+        if (settings.startupBehavior === 'continue' && settings.lastSessionUrls && settings.lastSessionUrls.length > 0) {
+           settings.lastSessionUrls.forEach((url, idx) => {
+             setTimeout(() => handleNewTab(url), idx * 10);
+           });
+        } else {
+           handleNewTab('https://www.google.com');
+        }
+      });
     }
   }, []);
 
@@ -73,6 +81,14 @@ function App() {
       if (window.electronAPI.getPasswords) window.electronAPI.getPasswords().then(setPasswordsData);
     }
   }, [isSettingsTab]);
+  useEffect(() => {
+    if (tabs.length > 0 && window.electronAPI) {
+      const urls = tabs.map(t => t.url).filter(u => u && !u.startsWith('internal://'));
+      if (urls.length > 0) {
+         window.electronAPI.saveAppSettings({ lastSessionUrls: urls });
+      }
+    }
+  }, [tabs]);
 
 
   useEffect(() => {
@@ -85,7 +101,7 @@ function App() {
   }, [activeTabId, tabs]);
 
   const handleNewTab = (url = 'https://www.google.com', isIncognito = false) => {
-    const id = Date.now().toString();
+    const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
     const newTab = { id, title: isIncognito ? '[無痕] New Tab' : 'New Tab', url, isIncognito };
     setTabs(prev => [...prev, newTab]);
     setActiveTabId(id);
@@ -368,6 +384,32 @@ function App() {
 
             {activeSettingsTab === 'general' && (
               <div className="settings-form">
+                <h3 style={{ marginTop: 0 }}>起始畫面</h3>
+                <div className="setting-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input 
+                      type="radio" 
+                      name="startupBehavior" 
+                      value="new-tab" 
+                      checked={appSettings.startupBehavior !== 'continue'} 
+                      onChange={() => setAppSettings({...appSettings, startupBehavior: 'new-tab'})}
+                    /> 
+                    開啟新分頁
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input 
+                      type="radio" 
+                      name="startupBehavior" 
+                      value="continue" 
+                      checked={appSettings.startupBehavior === 'continue'} 
+                      onChange={() => setAppSettings({...appSettings, startupBehavior: 'continue'})}
+                    /> 
+                    繼續先前進度
+                  </label>
+                </div>
+                
+                <hr style={{ borderColor: 'var(--border-color)', margin: '20px 0' }} />
+
                 <div className="setting-item">
                   <label>背景分頁閒置時間 (分鐘)</label>
                   <input 
